@@ -42,12 +42,12 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 
-# Signal handler that prints the thread ID
+
 @receiver(post_save, sender=User)
 def check_thread(sender, instance, **kwargs):
     print(f"Signal thread: {threading.get_ident()}")
 
-# Main program that prints the thread ID
+
 print(f"Caller thread: {threading.get_ident()}")
 User.objects.create(username="testuser")
 
