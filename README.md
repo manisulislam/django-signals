@@ -52,3 +52,41 @@ print(f"Caller thread: {threading.get_ident()}")
 User.objects.create(username="testuser")
 
 ```
+### Question 3:  By default do django signals run in the same database transaction as the caller? Please support your answer with a code snippet that conclusively proves your stance. The code does not need to be elegant and production ready, we just need to understand your logic.
+
+
+
+
+**Answer:** Yes, Django signals run in the same database transaction as the code that triggers them. If the main transaction fails, any database changes made inside the signal handler are also rolled back.
+
+#### Code snippet:
+
+```python
+from django.db import transaction
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+from django.dispatch import receiver
+
+@receiver(post_save, sender=User)
+def modify_profile(sender, instance, **kwargs):
+    print("Signal executed")
+    
+
+
+try:
+    with transaction.atomic():
+        print("Transaction started")
+        user = User.objects.create(username="testuser")
+       
+        raise Exception("Rolling back transaction")  
+except:
+    print("Transaction rolled back")
+
+
+if User.objects.filter(username="testuser").exists():
+    print("User exists after rollback")
+else:
+    print("User was rolled back")
+
+```
+
